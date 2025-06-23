@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>MAGUINO - Chatbot Retour Produit</title>
+  <style>
+    body { font-family: sans-serif; background: #f8f9fa; padding: 20px; max-width: 600px; margin: auto; }
+    #chat { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; background: white; }
+    .message { margin: 5px 0; }
+    .user { font-weight: bold; color: #333; }
+    .bot { color: #007bff; }
+    button { padding: 10px; margin: 5px 0; background: #007bff; color: white; border: none; border-radius: 4px; }
+    input { padding: 10px; width: 75%; }
+  </style>
+</head>
+<body>
+  <h2>MAGUINO - Retour produit</h2>
+  <div id="chat">
+    <div class="message bot"><strong>Bot:</strong> Bonjour 👋 ! Comment puis-je vous aider pour votre retour produit ?</div>
+    <button onclick="sendIntent('DEMANDE_RETOUR')">Faire un retour</button>
+    <button onclick="sendIntent('INFOS_RETOUR')">Infos retour</button>
+    <button onclick="sendIntent('REMBOURSEMENT')">Infos remboursement</button>
+    <button onclick="sendIntent('SUIVI_RETOUR')">Suivi retour</button>
+  </div>
+  <input type="text" id="userInput" placeholder="Posez votre question..." />
+  <button onclick="sendMessage()">Envoyer</button>
+
+  <script>
+    async function sendIntent(intent) {
+      addMessage("Vous", intent, "user");
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({intent})
+      });
+      const data = await res.json();
+      addMessage("Bot", data.response, "bot");
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (!message) return;
+      addMessage("Vous", message, "user");
+      input.value = "";
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message})
+      });
+      const data = await res.json();
+      addMessage("Bot", data.response, "bot");
+    }
+
+    function addMessage(sender, text, cls) {
+      const chat = document.getElementById("chat");
+      const msg = document.createElement("div");
+      msg.className = `message ${cls}`;
+      msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
