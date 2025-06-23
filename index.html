@@ -2,64 +2,279 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MAGUINO - Chatbot Retour Produit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: sans-serif; background: #f8f9fa; padding: 20px; max-width: 600px; margin: auto; }
-    #chat { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; background: white; }
-    .message { margin: 5px 0; }
-    .user { font-weight: bold; color: #333; }
-    .bot { color: #007bff; }
-    button { padding: 10px; margin: 5px 0; background: #007bff; color: white; border: none; border-radius: 4px; }
-    input { padding: 10px; width: 75%; }
+    :root {
+      --color-bg: #f5f7f9;
+      --color-chat-bg: #ffffff;
+      --color-user-bg: #dbe7f1;
+      --color-bot-bg: #f0f0f0;
+      --color-accent: #7a6f52;
+      --color-accent-hover: #5d533e;
+      --color-text-primary: #333333;
+      --color-text-secondary: #555555;
+      --color-border: #ddd;
+      --font-family: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-family);
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: 600;
+      margin: 24px 0 12px;
+      color: var(--color-accent);
+      user-select: none;
+    }
+
+    #chat {
+      flex: 1 1 auto;
+      background: var(--color-chat-bg);
+      padding: 16px;
+      overflow-y: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      scroll-behavior: smooth;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 14px 18px;
+      border-radius: 18px;
+      line-height: 1.4;
+      font-size: 15px;
+      position: relative;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards;
+      word-wrap: break-word;
+    }
+
+    .message.bot {
+      background: var(--color-bot-bg);
+      align-self: flex-start;
+      color: var(--color-text-secondary);
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 18px;
+      border-top-right-radius: 18px;
+    }
+
+    .message.user {
+      background: var(--color-user-bg);
+      align-self: flex-end;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 18px;
+      border-top-left-radius: 18px;
+    }
+
+    .message strong {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    footer {
+      display: flex;
+      gap: 10px;
+      padding: 16px 16px 20px;
+      background: var(--color-chat-bg);
+      border-top: 1px solid var(--color-border);
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
+      user-select: none;
+    }
+
+    input[type="text"] {
+      flex-grow: 1;
+      padding: 12px 18px;
+      font-size: 16px;
+      border-radius: 30px;
+      border: 1px solid var(--color-border);
+      outline-offset: 2px;
+      transition: border-color 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 8px rgba(122,111,82,0.3);
+    }
+
+    button {
+      background-color: var(--color-accent);
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-weight: 600;
+      padding: 0 24px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      min-width: 90px;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: var(--color-accent-hover);
+    }
+
+    button:disabled {
+      background-color: #bdbdbd;
+      cursor: not-allowed;
+    }
+
+    #intent-buttons {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      user-select: none;
+    }
+
+    #intent-buttons button {
+      min-width: 140px;
+      padding: 10px 18px;
+      font-size: 14px;
+      border-radius: 20px;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        height: 100vh;
+        max-width: 100vw;
+        padding: 0 12px 0;
+      }
+
+      #chat {
+        height: auto;
+        min-height: 60vh;
+        border-radius: 10px;
+      }
+
+      footer {
+        padding: 12px 12px 16px;
+      }
+
+      input[type="text"] {
+        font-size: 14px;
+      }
+
+      button {
+        font-size: 14px;
+        min-width: 70px;
+        padding: 0 18px;
+      }
+
+      #intent-buttons button {
+        min-width: 120px;
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>MAGUINO - Retour produit</h2>
-  <div id="chat">
-    <div class="message bot"><strong>Bot:</strong> Bonjour 👋 ! Comment puis-je vous aider pour votre retour produit ?</div>
-    <button onclick="sendIntent('DEMANDE_RETOUR')">Faire un retour</button>
-    <button onclick="sendIntent('INFOS_RETOUR')">Infos retour</button>
-    <button onclick="sendIntent('REMBOURSEMENT')">Infos remboursement</button>
-    <button onclick="sendIntent('SUIVI_RETOUR')">Suivi retour</button>
-  </div>
-  <input type="text" id="userInput" placeholder="Posez votre question..." />
-  <button onclick="sendMessage()">Envoyer</button>
+<h2>MAGUINO - Retour produit</h2>
+<div id="chat" role="log" aria-live="polite" aria-label="Zone de conversation">
+  <div class="message bot"><strong>Bot:</strong> Bonjour 👋 ! Comment puis-je vous aider pour votre retour produit ?</div>
+</div>
 
-  <script>
-    async function sendIntent(intent) {
-      addMessage("Vous", intent, "user");
-      const res = await fetch("/chat", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({intent})
-      });
-      const data = await res.json();
-      addMessage("Bot", data.response, "bot");
-    }
+<div id="intent-buttons" aria-label="Actions rapides">
+  <button type="button" onclick="sendIntent('DEMANDE_RETOUR')">Faire un retour</button>
+  <button type="button" onclick="sendIntent('INFOS_RETOUR')">Infos retour</button>
+  <button type="button" onclick="sendIntent('REMBOURSEMENT')">Infos remboursement</button>
+  <button type="button" onclick="sendIntent('SUIVI_RETOUR')">Suivi retour</button>
+</div>
 
-    async function sendMessage() {
-      const input = document.getElementById("userInput");
-      const message = input.value.trim();
-      if (!message) return;
-      addMessage("Vous", message, "user");
-      input.value = "";
-      const res = await fetch("/chat", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({message})
-      });
-      const data = await res.json();
-      addMessage("Bot", data.response, "bot");
-    }
+<footer>
+  <input type="text" id="userInput" placeholder="Posez votre question..." aria-label="Votre message" autocomplete="off" />
+  <button id="sendBtn" onclick="sendMessage()" disabled>Envoyer</button>
+</footer>
 
-    function addMessage(sender, text, cls) {
-      const chat = document.getElementById("chat");
-      const msg = document.createElement("div");
-      msg.className = `message ${cls}`;
-      msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
-      chat.appendChild(msg);
-      chat.scrollTop = chat.scrollHeight;
+<script>
+  const input = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const chat = document.getElementById('chat');
+
+  // Activer/désactiver le bouton envoyer selon contenu
+  input.addEventListener('input', () => {
+    sendBtn.disabled = input.value.trim() === '';
+  });
+
+  // **Ajout : envoyer message avec la touche Enter**
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !sendBtn.disabled) {
+      e.preventDefault();
+      sendMessage();
     }
-  </script>
+  });
+
+  async function sendIntent(intent) {
+    addMessage("Vous", intent.replace('_', ' '), "user");
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ intent })
+    });
+    const data = await res.json();
+    addMessage("Bot", data.response, "bot");
+  }
+
+  async function sendMessage() {
+    const message = input.value.trim();
+    if (!message) return;
+    addMessage("Vous", message, "user");
+    input.value = "";
+    sendBtn.disabled = true;
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+    const data = await res.json();
+    addMessage("Bot", data.response, "bot");
+    input.focus();
+  }
+
+  function addMessage(sender, text, cls) {
+    const msg = document.createElement("div");
+    msg.className = `message ${cls}`;
+    msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  window.onload = () => {
+    input.focus();
+  };
+</script>
 </body>
 </html>
