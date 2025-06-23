@@ -73,7 +73,6 @@ h2 {
 .message.user {
 	background: var(--color-user-bg);
 	align-self: flex-end;
-	font-weight: 600;
 	color: var(--color-text-primary);
 	border-top-right-radius: 4px;
 	border-bottom-right-radius: 18px;
