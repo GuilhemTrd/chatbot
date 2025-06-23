@@ -32,4 +32,6 @@ def serve_static(path):
     return send_from_directory(os.getcwd(), path)
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    # Récupérer le port depuis l'environnement (Render/Vercel/OVH), fallback 5000 pour local
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
