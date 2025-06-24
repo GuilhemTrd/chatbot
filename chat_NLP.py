@@ -6,11 +6,13 @@ import re
 nlp = spacy.blank("fr")
 textcat = nlp.add_pipe("textcat")
 
+# Intentions
 INTENTIONS = ["SALUTATION", "DEMANDE_RETOUR", "INFOS_RETOUR", "REMBOURSEMENT", "SUIVI_RETOUR", "QUESTION_GENERALE", "REMERCIEMENT"]
 
 for label in INTENTIONS:
     textcat.add_label(label)
 
+# Entraînement de base
 train_data = [
     ("bonjour", {"cats": {"SALUTATION": 1}}),
     ("salut", {"cats": {"SALUTATION": 1}}),
@@ -28,6 +30,7 @@ for _ in range(10):
         ex = spacy.training.Example.from_dict(nlp.make_doc(text), ann)
         nlp.update([ex], sgd=optimizer)
 
+# Config
 KEYWORDS = {
     "SALUTATION": ["bonjour", "salut"],
     "REMERCIEMENT": ["merci", "thanks"],
@@ -46,13 +49,17 @@ REASON_CATEGORIES = {
     "Ne correspond pas à la description": ["ne correspond pas", "différent de la description"]
 }
 
+# Utilitaires
 def fuzzy_match(text, options):
     match, score = process.extractOne(text, options)
     return match if score > 70 else None
 
 def extract_cmd(text):
-    found = re.search(r'CMD-\d{6}', text, re.IGNORECASE)
-    return found.group(0).upper() if found else None
+    """
+    Extrait un numéro de commande strictement au format CMD-XXXXXX (CMD en majuscule + 6 chiffres)
+    """
+    match = re.fullmatch(r'CMD-\d{6}', text.strip())
+    return match.group(0) if match else None
 
 def match_reason(text):
     flat_list = []
@@ -64,6 +71,7 @@ def match_reason(text):
     match = fuzzy_match(text, flat_list)
     return mapping.get(match) if match else None
 
+# Classe principale
 class ChatbotNLP:
     def __init__(self):
         self.awaiting_order = False
@@ -75,7 +83,7 @@ class ChatbotNLP:
     def process_input(self, text):
         text = text.strip()
 
-        # Si en cours de processus
+        # Gestion des étapes actives
         if self.awaiting_order:
             cmd = extract_cmd(text)
             if cmd:
@@ -83,7 +91,7 @@ class ChatbotNLP:
                 self.awaiting_order = False
                 self.awaiting_product = True
                 return f"Merci. Quel produit de la commande {cmd} souhaitez-vous retourner ? (Exemple : Casque Bluetooth)"
-            return "❌ Le numéro de commande est invalide. Il doit être au format CMD-XXXXXX. Veuillez réessayer."
+            return "❌ Le numéro de commande est invalide. Il doit être au format exact CMD-XXXXXX. Veuillez réessayer."
 
         if self.awaiting_product:
             match = fuzzy_match(text, VALID_PRODUCTS)
@@ -105,10 +113,9 @@ class ChatbotNLP:
             motifs = ", ".join(REASON_CATEGORIES.keys())
             return f"❌ Motif non reconnu. Choisissez parmi : {motifs}."
 
-        # Détection intention globale
+        # Détection d'une intention générale
         doc = nlp(text)
         best = max(doc.cats, key=doc.cats.get) if doc.cats else None
-
         if best and doc.cats[best] > 0.5:
             return self.handle_intention(best)
 
