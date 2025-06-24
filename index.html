@@ -17,7 +17,7 @@
   <button type="button" onclick="sendIntent('DEMANDE_RETOUR')">Faire un retour</button>
   <button type="button" onclick="sendIntent('INFOS_RETOUR')">Infos retour</button>
   <button type="button" onclick="sendIntent('REMBOURSEMENT')">Infos remboursement</button>
-  <button type="button" onclick="sendIntent('SUIVI_RETOUR')">Suivi retour</button>
+  <button type="button" onclick="sendIntent('RESET')">🔄 Recommencer</button>
 </div>
 
 <footer>
@@ -30,12 +30,10 @@
   const sendBtn = document.getElementById('sendBtn');
   const chat = document.getElementById('chat');
 
-  // Activer/désactiver le bouton envoyer selon contenu
   input.addEventListener('input', () => {
     sendBtn.disabled = input.value.trim() === '';
   });
 
-  // **Ajout : envoyer message avec la touche Enter**
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !sendBtn.disabled) {
       e.preventDefault();
