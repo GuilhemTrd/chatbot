@@ -31,8 +31,8 @@ def fuzzy_match(text, options):
     return match if score > 70 else None
 
 def extract_order_number(text):
-    match = re.search(r'CMD-\d{6}', text, re.IGNORECASE)
-    return match.group().upper() if match else None
+    match = re.compile(r'CMD-\d{6}', re.IGNORECASE)
+    return text.strip().upper() if match.fullmatch(text.strip()) else None
 
 
 VALID_PRODUCTS = ["Casque Bluetooth", "Chargeur USB", "Coque iPhone", "Souris sans fil"]
