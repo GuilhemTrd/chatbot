@@ -83,7 +83,6 @@ class ChatbotNLP:
     def process_input(self, text):
         text = text.strip()
 
-        # Gestion des étapes actives
         if self.awaiting_order:
             cmd = extract_cmd(text)
             if cmd:
@@ -113,7 +112,6 @@ class ChatbotNLP:
             motifs = ", ".join(REASON_CATEGORIES.keys())
             return f"❌ Motif non reconnu. Choisissez parmi : {motifs}."
 
-        # Détection d'une intention générale
         doc = nlp(text)
         best = max(doc.cats, key=doc.cats.get) if doc.cats else None
         if best and doc.cats[best] > 0.5:
@@ -123,7 +121,11 @@ class ChatbotNLP:
         if fuzzy:
             return self.handle_intention(fuzzy)
 
-        return "Je n'ai pas compris votre demande. Pouvez-vous reformuler ?"
+        # Ajout redirection vers aide en ligne
+        return (
+            "Je n'ai pas compris votre demande. "
+            "Pouvez-vous reformuler ou consulter notre aide en ligne : https://www.maguino.com/aide-retour"
+        )
 
     def handle_intention(self, intent):
         if intent == "SALUTATION":
